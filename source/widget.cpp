@@ -99,16 +99,16 @@ void widget::solve()
 	switch(shudu.Check())
 	{
 	case 0:
-		QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("初始数少于17个！"));
+		QMessageBox::warning(this, tr("警告"), tr("初始数少于17个！"));
 		break;
 	case -1:
-		QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("表格中只能为1～9的数字！"));
+		QMessageBox::warning(this, tr("警告"), tr("表格中只能为1～9的数字！"));
 		break;
 	case -2:
-		QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("数组未初始化！"));
+		QMessageBox::warning(this, tr("警告"), tr("数组未初始化！"));
 		break;
 	case -3:
-		QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("行、列、宫中有重复的数！"));
+		QMessageBox::warning(this, tr("警告"), tr("行、列、宫中有重复的数！"));
 		break;
 	case 1:
 		ui.tableWidget->setEditable(false);
@@ -123,7 +123,7 @@ void widget::solve()
 		else
 		{
 			ui.tableWidget->setEditable(true);
-			QMessageBox::information(this, QStringLiteral("结果"), QStringLiteral("此题无解！"));
+			QMessageBox::information(this, tr("结果"), tr("此题无解！"));
 		}
 		break;
 	}

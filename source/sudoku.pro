@@ -24,3 +24,5 @@ HEADERS  += widget.h \
 FORMS    += widget.ui
 
 RESOURCES +=
+
+DISTFILES +=
