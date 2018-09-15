@@ -10,7 +10,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = sudoku
 TEMPLATE = app
-TRANSLATIONS += en.ts
 
 SOURCES += main.cpp\
         widget.cpp \

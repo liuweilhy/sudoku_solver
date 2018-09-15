@@ -18,7 +18,7 @@ public:
 private slots:
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
-	virtual void paintEvent(QPaintEvent *event);
+    virtual void keyboardSearch(const QString &search);
 
 private:
 	//空白色与填充色

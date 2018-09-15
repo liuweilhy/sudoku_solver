@@ -2,6 +2,7 @@
 #pragma execution_character_set("utf-8")
 #endif
 #include "mytable.h"
+#include <QDebug>
 
 MyTable::MyTable(QWidget *parent)
 	: QTableWidget(parent)
@@ -11,7 +12,7 @@ MyTable::MyTable(QWidget *parent)
 	filledColor = Qt::gray;
 	setRowCount(9);
 	setColumnCount(9);
-	for(int i=0; i<9; i++)
+    for(int i=0; i<9; i++)
 	{
 		for(int j=0; j<9; j++)
 		{
@@ -51,8 +52,17 @@ void MyTable::getData(char Data[9][9])
 	for(int i=0; i<9; i++)
 		for(int j=0; j<9; j++)
 		{
-			//QString a = item(i,j)->text();
-			Data[i][j] = (char)(item(i,j)->text().toInt());
+            // 仅提取初设值
+            if (item(i,j)->backgroundColor() == filledColor)
+            {
+                //QString a = item(i,j)->text();
+                Data[i][j] = (char)(item(i,j)->text().toInt());
+            }
+            else
+            {
+                // 其余置0
+                Data[i][j] = (char)0;
+            }
 		}
 }
 
@@ -87,20 +97,6 @@ void MyTable::resizeEvent(QResizeEvent *event)
 	}
 }
 
-void MyTable::paintEvent(QPaintEvent *event)
-{
-	QPainter painter(this);
-/*	painter.setPen(QPen(Qt::black, 12));
-	int l = width() < height() ? width() : height();
-	int x = l/3;
-	for(int i = 0; i <= 3; i++)
-	{
-		painter.drawLine(0,i*x,l,i*x);
-		painter.drawLine(i*x,0,i*x,l);
-	}*/
-	QTableWidget::paintEvent(event);
-}
-
 void MyTable::keyPressEvent(QKeyEvent *event)
 {
 	switch (event->key())
@@ -121,17 +117,41 @@ void MyTable::keyPressEvent(QKeyEvent *event)
 			//QString b = currentItem()->text();
 			currentItem()->setBackgroundColor(filledColor);
 		}
+        qDebug() << event->key();
 		break;
 	case Qt::Key_0:
 	case Qt::Key_Space:
 	case Qt::Key_Delete:
+        // 如果输入0或空格或删除，则清空单元格里的值
 		if(m_isEditable)
 		{
 			currentItem()->setText(QString(' '));
 			currentItem()->setBackgroundColor(blankColor);
 		}
-		break;
+        qDebug() << event->key();
+        break;
 	default:
-		QTableWidget::keyPressEvent(event);
+        QTableWidget::keyPressEvent(event);
 	}
 }
+
+// 必须屏蔽掉原keyboardSearch函数
+void MyTable::keyboardSearch(const QString &search)
+{
+    qDebug() << search;
+    if(!m_isEditable)
+        return;
+
+    // 在shift状态下不能接收keyPressEvent，所以在此手动赋值
+    if (search >= "1" && search <= "9")
+    {
+        currentItem()->setText(search);
+        currentItem()->setBackgroundColor(filledColor);
+    }
+    else if (search == " " || search == "0")
+    {
+        currentItem()->setText(" ");
+        currentItem()->setBackgroundColor(blankColor);
+    }
+}
+

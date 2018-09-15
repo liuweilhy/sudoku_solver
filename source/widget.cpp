@@ -2,88 +2,54 @@
 #pragma execution_character_set("utf-8")
 #endif
 #include "widget.h"
+#include <QMessageBox>
+#include <QElapsedTimer>
+#include <QDebug>
 
 widget::widget(QWidget *parent)
-	: QWidget(parent)
+    : QWidget(parent),
+resultNo(-1)
 {
 	ui.setupUi(this);
-	QObject::connect(ui.resetButton, SIGNAL(clicked()), this, SLOT(reset()));
-	QObject::connect(ui.solveButton, SIGNAL(clicked()), this, SLOT(solve()));
-	QObject::connect(ui.mBox, SIGNAL(valueChanged(int)), this, SLOT(run(int)));
-	QObject::connect(ui.aboutButton, SIGNAL(clicked()), this, SLOT(about()));
-	//实验用数组
-    char g_little[9][9]=
-    {
-		1,2,3,4,5,6,7,8,9,
-		4,5,6,7,8,9,1,2,3,
-		7,8,9,1,2,3,4,5,6,
-		2,3,4,5,6,7,8,9,1,
-		5,6,7,8,9,1,2,3,4,
-		8,9
-	};
+    ui.comboBox->addItem(tr("很多解"), 0);
+    ui.comboBox->addItem(tr("两个解"), 1);
+    ui.comboBox->addItem(tr("简单"), 2);
+    ui.comboBox->addItem(tr("普通"), 3);
+    ui.comboBox->addItem(tr("困难"), 4);
+    ui.comboBox->addItem(tr("最难"), 5);
+    ui.comboBox->addItem(tr("自定义"), 6);
 
-	char g_simple[9][9]=
-	{
-		0,0,4,0,0,7,0,2,8,
-		6,3,8,1,2,4,0,0,7,
-		9,7,2,0,5,0,4,0,0,
-		5,0,3,9,0,0,0,7,0,
-		4,9,0,5,7,0,2,0,0,
-		2,0,0,0,0,0,5,0,6,
-		0,0,0,8,0,0,7,0,0,
-		8,4,9,7,1,5,0,6,2,
-		0,1,5,0,6,0,8,0,9
-	};
-
-	char g_multi[9][9]=
-	{
-		0,5,0,0,3,6,9,0,0,
-		3,4,0,7,0,0,2,5,0,
-		8,0,0,9,0,5,0,0,3,
-		0,2,4,0,9,0,1,0,0,
-		6,0,0,2,0,1,0,9,7,
-		0,0,5,0,0,4,0,0,0,
-		0,9,0,1,8,2,6,0,4,
-		0,8,6,0,4,0,0,0,0,
-		4,7,0,5,0,0,8,0,0
-	};
-
-
-	char g_hard[9][9]=
-	{
-		4,7,9,2,6,0,1,0,0,
-		0,2,5,0,1,0,0,3,0,
-		1,0,0,0,4,0,0,9,0,
-		0,0,4,0,5,7,6,0,0,
-		0,0,0,8,0,0,7,0,0,
-		0,0,6,0,0,1,0,0,0,
-		3,5,2,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,5,
-		0,0,0,0,0,0,0,0,0
-	};
-
-	char g_hardest[9][9]=
-	{
-		8,0,0,0,0,0,0,0,0,
-		0,0,3,6,0,0,0,0,0,
-		0,7,0,0,9,0,2,0,0,
-		0,5,0,0,0,7,0,0,0,
-		0,0,0,0,4,5,7,0,0,
-		0,0,0,1,0,0,0,3,0,
-		0,0,1,0,0,0,0,6,8,
-		0,0,8,5,0,0,0,1,0,
-		0,9,0,0,0,0,4,0,0
-	};
-	ui.tableWidget->setData(g_hard, true);
+    connect(ui.editButton, SIGNAL(clicked()), this, SLOT(edit()));
+    connect(ui.solveButton, SIGNAL(clicked()), this, SLOT(solve()));
+    connect(ui.mBox, SIGNAL(valueChanged(int)), this, SLOT(run(int)));
+    connect(ui.aboutButton, SIGNAL(clicked()), this, SLOT(about()));
+    connect(ui.comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setDate(int)));
+    ui.comboBox->setCurrentIndex(2);
 }
 
 widget::~widget()
 {
 }
 
-void widget::reset()
+bool widget::setDate(int i /*= 0*/)
 {
-	ui.tableWidget->clearData();
+    resultNo = -1;
+    if (i >= 0 && i < 7)
+    {
+        ui.tableWidget->clearSelection();
+        ui.tableWidget->setData(array[i], true);
+        return true;
+    }
+    else
+    {
+        ui.tableWidget->setData(array[6], true);
+        return false;
+    }
+}
+
+void widget::edit()
+{
+    ui.comboBox->setCurrentIndex(ui.comboBox->count() - 1);
 	ui.tableWidget->setEditable(true);
 	ui.numEdit->clear();
 	ui.timeEdit->clear();
@@ -94,8 +60,8 @@ void widget::reset()
 void widget::solve()
 {
 	//从表格中获取初值
-	ui.tableWidget->getData(Data);
-	shudu.Initialize(Data);
+    ui.tableWidget->getData(mydata);
+    shudu.Initialize(mydata);
 	switch(shudu.Check())
 	{
 	case 0:
@@ -111,7 +77,8 @@ void widget::solve()
 		QMessageBox::warning(this, tr("警告"), tr("行、列、宫中有重复的数！"));
 		break;
 	case 1:
-		ui.tableWidget->setEditable(false);
+        ui.tableWidget->setEditable(false);
+        resultNo = -1;
 		unsigned long n = run();
 		if(n > 0)
 		{
@@ -133,14 +100,26 @@ unsigned long widget::run(int i/* = 0*/)
 {
 	if(ui.tableWidget->isEditable())
 		return 0;
-	QTime timeTake;
-	timeTake.start();
-	unsigned long result =  shudu.Solve(i);
-	int time = timeTake.elapsed();
-	shudu.Output(Data);
-	ui.tableWidget->setData(Data);
-	ui.timeEdit->setText(QString::number(time)+"ms");
-	return result;
+    // 添加一步判断，避免重复计算产生额外时间
+    if (i !=0 && i == resultNo + 1)
+        return i;
+
+    setCursor(Qt::WaitCursor);
+    QElapsedTimer timer;
+    timer.start();
+    unsigned long result = shudu.Solve(i);
+    qint64 tm = timer.elapsed();
+    qDebug() << tm;
+    if (result >= 0)
+    {
+        resultNo = result - 1;
+        shudu.Output(mydata);
+        ui.tableWidget->setData(mydata);
+        ui.timeEdit->setText(QString::number(tm)+"ms");
+    }
+    setCursor(Qt::ArrowCursor);
+
+    return result;
 }
 
 void widget::about()

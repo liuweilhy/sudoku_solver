@@ -316,7 +316,6 @@ bool Sudoku::Recursion(struct node *p)
 	return false;
 }
 
-//用上述两种方法求解数独
 //参数n为0时，返回解的总数，总数不超过unsigned long的最大值
 //参数n为非0时，如果第n个解存在则返回n，否则返回解的总数
 unsigned long Sudoku::Solve(unsigned long n /*= 0ul*/)
