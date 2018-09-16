@@ -2,6 +2,8 @@
 #pragma execution_character_set("utf-8")
 #endif
 #include "mytable.h"
+#include <QFont>
+#include <QPainter>
 #include <QDebug>
 
 MyTable::MyTable(QWidget *parent)
@@ -9,7 +11,7 @@ MyTable::MyTable(QWidget *parent)
 {
 	m_isEditable = true;
 	blankColor = Qt::white;
-	filledColor = Qt::gray;
+    filledColor = Qt::lightGray;
 	setRowCount(9);
 	setColumnCount(9);
     for(int i=0; i<9; i++)
@@ -88,13 +90,19 @@ bool MyTable::isEditable()
 
 void MyTable::resizeEvent(QResizeEvent *event)
 {
+    // 自动调节各单元格的宽度和高度
 	int l = width() < height() ? width() : height();
-	int x = l/9;
+    l /= 9;
+    //qDebug() << "w" << width() << " h" << height();
 	for(int i = 0; i < 9; i++)
 	{
-		setRowHeight(i,x);
-		setColumnWidth(i,x);
+        setRowHeight(i,l);
+        setColumnWidth(i,l);
 	}
+    // 调节字体大小，要用PixelSize代替PointSize
+    QFont f = font();
+    f.setPixelSize(l*0.8);
+    setFont(f);
 }
 
 void MyTable::keyPressEvent(QKeyEvent *event)
@@ -117,7 +125,7 @@ void MyTable::keyPressEvent(QKeyEvent *event)
 			//QString b = currentItem()->text();
 			currentItem()->setBackgroundColor(filledColor);
 		}
-        qDebug() << event->key();
+        //qDebug() << event->key();
 		break;
 	case Qt::Key_0:
 	case Qt::Key_Space:
@@ -128,7 +136,7 @@ void MyTable::keyPressEvent(QKeyEvent *event)
 			currentItem()->setText(QString(' '));
 			currentItem()->setBackgroundColor(blankColor);
 		}
-        qDebug() << event->key();
+        //qDebug() << event->key();
         break;
 	default:
         QTableWidget::keyPressEvent(event);
@@ -138,7 +146,7 @@ void MyTable::keyPressEvent(QKeyEvent *event)
 // 必须屏蔽掉原keyboardSearch函数
 void MyTable::keyboardSearch(const QString &search)
 {
-    qDebug() << search;
+    //qDebug() << search;
     if(!m_isEditable)
         return;
 
@@ -154,4 +162,41 @@ void MyTable::keyboardSearch(const QString &search)
         currentItem()->setBackgroundColor(blankColor);
     }
 }
+
+// 重载paintEvent优化网格线
+void MyTable::paintEvent(QPaintEvent * event)
+{
+    QTableWidget::paintEvent(event);
+    QPainter painter(this->viewport());
+    // 格宽
+    int l = width() < height() ? width() : height();
+    l /= 9;
+    // 格宽
+    int w = (l/24 > 1) ? l/18 : 1;
+    // 设置普通线形
+    QPen pen_1(Qt::gray, w);
+    // 设置加粗线形
+    QPen pen_2(Qt::darkGray, 2*w);
+    // 画网格线，分开写，粗线覆盖细线
+    for (int i = 0; i <= 9; i++)
+    {
+        if (i % 3)
+        {
+            painter.setPen(pen_1);
+            painter.drawLine(0,i*l,l*9,i*l);
+            painter.drawLine(i*l,0,i*l,l*9);
+        }
+    }
+    for (int i = 0; i <= 9; i++)
+    {
+        if (!(i % 3))
+        {
+            painter.setPen(pen_2);
+            painter.drawLine(0,i*l,l*9,i*l);
+            painter.drawLine(i*l,0,i*l,l*9);
+        }
+    }
+}
+
+
 

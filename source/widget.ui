@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
+    <width>396</width>
     <height>246</height>
    </rect>
   </property>
@@ -37,6 +37,9 @@
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
      <property name="autoScroll">
       <bool>false</bool>
      </property>
@@ -55,6 +58,9 @@
      <property name="textElideMode">
       <enum>Qt::ElideMiddle</enum>
      </property>
+     <property name="wordWrap">
+      <bool>false</bool>
+     </property>
      <property name="rowCount">
       <number>9</number>
      </property>
@@ -65,19 +71,19 @@
       <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>20</number>
+      <number>23</number>
      </attribute>
      <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>20</number>
+      <number>23</number>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>20</number>
+      <number>23</number>
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
-      <number>20</number>
+      <number>23</number>
      </attribute>
      <row/>
      <row/>
@@ -116,16 +122,16 @@
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="solveButton">
+      <widget class="QPushButton" name="editButton">
        <property name="text">
-        <string>开始计算(&amp;R)</string>
+        <string>自定题目(&amp;S)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="editButton">
+      <widget class="QPushButton" name="solveButton">
        <property name="text">
-        <string>编辑题目(&amp;S)</string>
+        <string>开始计算(&amp;R)</string>
        </property>
       </widget>
      </item>
