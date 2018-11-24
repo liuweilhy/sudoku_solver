@@ -8,9 +8,9 @@
 
 widget::widget(QWidget *parent)
     : QWidget(parent),
-resultNo(-1)
+resultNo(0)
 {
-	ui.setupUi(this);
+    ui.setupUi(this);
     ui.tableWidget->setEditable(true);
     ui.comboBox->addItem(tr("很多解"), 0);
     ui.comboBox->addItem(tr("两个解"), 1);
@@ -104,8 +104,9 @@ widget::~widget()
 
 bool widget::setDate(int i /*= 0*/)
 {
-    resultNo = -1;
-    if (i >= 0 && i < 7)
+    resultNo = 0;
+    ui.tableWidget->setEditable(true);
+    if (i >= 0 && i < 6)
     {
         ui.tableWidget->clearSelection();
         ui.tableWidget->setData(array[i], true);
@@ -114,77 +115,80 @@ bool widget::setDate(int i /*= 0*/)
     else
     {
         ui.tableWidget->setData(array[6], true);
+        ui.numEdit->clear();
+        ui.timeEdit->clear();
+        ui.mBox->setReadOnly(true);
+        ui.mBox->setRange(0,0);
         return false;
     }
-    ui.tableWidget->setEditable(true);
 }
 
 void widget::edit()
 {
     ui.comboBox->setCurrentIndex(ui.comboBox->count() - 1);
-	ui.numEdit->clear();
-	ui.timeEdit->clear();
-	ui.mBox->setReadOnly(true);
-	ui.mBox->setRange(0,0);
 }
 
 void widget::solve()
 {
-	//从表格中获取初值
+    // 从表格中获取初值
     ui.tableWidget->getData(mydata);
-    shudu.Initialize(mydata);
-	switch(shudu.Check())
-	{
-	case 0:
-		QMessageBox::warning(this, tr("警告"), tr("初始数少于17个！"));
-		break;
-	case -1:
-		QMessageBox::warning(this, tr("警告"), tr("表格中只能为1～9的数字！"));
-		break;
-	case -2:
-		QMessageBox::warning(this, tr("警告"), tr("数组未初始化！"));
-		break;
-	case -3:
-		QMessageBox::warning(this, tr("警告"), tr("行、列、宫中有重复的数！"));
-		break;
-	case 1:
+    shudu.initialize(mydata);
+    // 判断初始数独数据是否合法
+    switch(shudu.check())
+    {
+    case 0:
+        QMessageBox::warning(this, tr("警告"), tr("初始数少于17个！"));
+        break;
+    case -1:
+        QMessageBox::warning(this, tr("警告"), tr("表格中只能为1～9的数字！"));
+        break;
+    case -2:
+        QMessageBox::warning(this, tr("警告"), tr("数组未初始化！"));
+        break;
+    case -3:
+        QMessageBox::warning(this, tr("警告"), tr("行、列、宫中有重复的数！"));
+        break;
+    case 1:
+        // 如果初始检测合法，则运行计算
         ui.tableWidget->setEditable(false);
-        resultNo = -1;
-		unsigned long n = run();
-		if(n > 0)
-		{
-			ui.numEdit->setText(QString::number(n));
-			ui.mBox->setReadOnly(false);
-			ui.mBox->setRange(1,n);
-			ui.mBox->setValue(n);
-		}
-		else
-		{
-			ui.tableWidget->setEditable(true);
-			QMessageBox::information(this, tr("结果"), tr("此题无解！"));
-		}
-		break;
-	}
+        resultNo = 0;
+        // 求解所有结果
+        unsigned long n = run(0);
+        // 如果有解，显示结果
+        if(n > 0)
+        {
+            ui.numEdit->setText(QString::number(n));
+            ui.mBox->setReadOnly(false);
+            ui.mBox->setRange(1,n);
+            ui.mBox->setValue(n);
+        }
+        else
+        {
+            ui.tableWidget->setEditable(true);
+            QMessageBox::information(this, tr("结果"), tr("此题无解！"));
+        }
+        break;
+    }
 }
 
 unsigned long widget::run(int i/* = 0*/)
 {
-	if(ui.tableWidget->isEditable())
-		return 0;
-    // 添加一步判断，避免重复计算产生额外时间
-    if (i !=0 && i == resultNo + 1)
+    if(ui.tableWidget->isEditable())
+        return 0;
+    // solve会调用一次本函数，mBox也会调用一次，
+    // 所以添加一步判断，避免重复计算产生额外时间
+    if (i !=0 && i == resultNo)
         return i;
 
     setCursor(Qt::WaitCursor);
     QElapsedTimer timer;
     timer.start();
-    unsigned long result = shudu.Solve(i);
+    unsigned long result = shudu.solve(i);
     qint64 tm = timer.elapsed();
-    //() << tm;
     if (result >= 0)
     {
-        resultNo = result - 1;
-        shudu.Output(mydata);
+        resultNo = result;
+        shudu.output(mydata);
         ui.tableWidget->setData(mydata);
         ui.timeEdit->setText(QString::number(tm)+"ms");
     }

@@ -8,14 +8,14 @@
 
 class widget : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	widget(QWidget *parent = 0);
-	~widget();
+    widget(QWidget *parent = 0);
+    ~widget();
 
 private:
-	Ui::widgetClass ui;
+    Ui::widgetClass ui;
 
     // 预置数组
     static const char array[7][9][9];
@@ -23,8 +23,8 @@ private:
     // 数据交换表
     char mydata[9][9];
     // 数独对象
-	Sudoku shudu;
-    // 当前解的序号
+    Sudoku shudu;
+    // 当前解的序号，下标从1开始
     int resultNo;
 
 public slots:
@@ -33,11 +33,11 @@ public slots:
     // 编辑表格
     void edit();
     // 解题
-	void solve();
+    void solve();
     // 计算第i个解
-	unsigned long run(int i = 0);
+    unsigned long run(int i = 0);
     // 关于
-	void about();
+    void about();
 };
 
 #endif // WIDGET_H
