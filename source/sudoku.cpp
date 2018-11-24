@@ -123,65 +123,6 @@ void Sudoku::deleteTable()
     end = nullptr;
 }
 
-//插入法排序单个节点，在当前位置向前插入
-//候选值多的排在后面
-void Sudoku::insert(struct node* current)
-{
-    //不对空节点和head节点排序
-    if(!current || !(current->prev))
-        return;
-    struct node *af = current->prev;    //插入节点指针
-    struct node *pr = current->prev;    //前驱节点指针
-    struct node *ne = current->next;    //后继节点指针
-    //排在后面
-    while(af)
-    {
-        //若前驱节点的候选数不大于当前节点候选数
-        if(af->num <= current->num)
-        {
-            //如果节点没动，则返回
-            if(af==pr)
-                return;
-            else
-                break;
-        }
-        else
-            af = af->prev;
-    }
-    //将当前节点至于前驱节点之后
-    pr->next = current->next;
-    if(ne)
-        ne->prev = current->prev;
-    else
-        end = pr;
-    current->prev = af;
-    if(af)
-    {
-        current->next = af->next;
-        af->next->prev =current;
-        af->next = current;
-    }
-    else
-    {
-        current->next = head;
-        head->prev = current;
-        head = current;
-    }
-}
-
-//插入法排序整个链表
-//候选值多的排在后面
-void Sudoku::insert()
-{
-    struct node *p = head->next;
-    while(p)
-    {
-        //依次排序
-        insert(p);
-        p=p->next;
-    }
-}
-
 //摒除法清理链表
 bool Sudoku::renounce()
 {
@@ -252,7 +193,7 @@ bool Sudoku::isRepeted(char a, int ip, int jp, char array[N][N])
     return false;
 }
 
-//递归求解方法二，求解所有解，速度较慢
+//递归回溯算法，求解所有解，速度较慢
 //当参数n为0时，可以得出解的个数（不超过unsigned long上限）
 //当n为非0时，可以得出第n个解
 bool Sudoku::recursion(struct node *p)
@@ -302,8 +243,6 @@ unsigned long Sudoku::solve(unsigned long n /*= 0ul*/)
         return 0;
     //摒除法清理链表
     renounce();
-    //插入法排序
-    insert();
     //清空解的个数
     num = 0ul;
     //置n值

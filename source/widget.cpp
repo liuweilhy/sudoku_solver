@@ -105,20 +105,21 @@ widget::~widget()
 bool widget::setDate(int i /*= 0*/)
 {
     resultNo = 0;
+    ui.tableWidget->clearSelection();
     ui.tableWidget->setEditable(true);
+    ui.numEdit->clear();
+    ui.timeEdit->clear();
+    ui.mBox->setReadOnly(true);
+    ui.mBox->setRange(0,0);
+
     if (i >= 0 && i < 6)
     {
-        ui.tableWidget->clearSelection();
         ui.tableWidget->setData(array[i], true);
         return true;
     }
     else
     {
         ui.tableWidget->setData(array[6], true);
-        ui.numEdit->clear();
-        ui.timeEdit->clear();
-        ui.mBox->setReadOnly(true);
-        ui.mBox->setRange(0,0);
         return false;
     }
 }

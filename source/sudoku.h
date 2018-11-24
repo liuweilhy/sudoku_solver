@@ -40,10 +40,6 @@ private:
     bool initializeTable();
     // 删除链表
     void deleteTable();
-    // 插入法排序单个节点
-    void insert(struct node *current);
-    // 插入法排序整个节点链表
-    void insert();
     // 摒除法清理链表
     bool renounce();
     //检验是否有重复
